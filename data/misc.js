@@ -9,16 +9,6 @@ export const awards = [
   // { label: 'Award name', value: 'context · year' },
 ];
 
-// PLACEHOLDER: replace with real entries (build logs / notes / a "now" feed).
-export const diary = [
-  {
-    date: 'Jun 2026',
-    title: 'Placeholder entry',
-    body: 'Send me a few diary entries (date · title · 1–2 sentences) and I’ll drop them in. This section is styled and ready.',
-  },
-  {
-    date: 'May 2026',
-    title: 'Wrapped AP Research',
-    body: 'Finished the Visor paper + backtesting engine. (Replace this with your real note.)',
-  },
-];
+// Add entries here as { date, title, body } — the page renders them, or shows
+// a short "coming soon" note when this is empty.
+export const diary = [];

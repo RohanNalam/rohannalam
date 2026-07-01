@@ -14,15 +14,19 @@ export default function DiaryPage() {
         <h1 className="big-head">Diary.</h1>
         <p className="section-sub">Short notes on what I&apos;m building, learning, and breaking.</p>
 
-        <div className="diary-list">
-          {diary.map((d, i) => (
-            <article className="diary-card" key={i}>
-              <span className="diary-card-date">{d.date}</span>
-              <h3 className="diary-card-title">{d.title}</h3>
-              <p className="diary-card-body">{d.body}</p>
-            </article>
-          ))}
-        </div>
+        {diary.length > 0 ? (
+          <div className="diary-list">
+            {diary.map((d, i) => (
+              <article className="diary-card" key={i}>
+                <span className="diary-card-date">{d.date}</span>
+                <h3 className="diary-card-title">{d.title}</h3>
+                <p className="diary-card-body">{d.body}</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="section-sub">More soon — check back for build logs and notes.</p>
+        )}
       </main>
     </>
   );
