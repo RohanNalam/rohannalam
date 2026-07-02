@@ -10,7 +10,7 @@ export default function Work() {
 
       <div className="exp-list">
         {experiences.map((e, i) => (
-          <Reveal className={`exp-row ${e.placeholder ? 'placeholder' : ''}`} key={i} delay={Math.min(i + 1, 5)}>
+          <Reveal className={`exp-row ${e.placeholder ? 'placeholder' : ''}`} key={i} delay={Math.min(i + 1, 5)} from={i % 2 ? 'right' : 'left'}>
             <BrandLogo
               src={e.logo}
               alt={e.org}

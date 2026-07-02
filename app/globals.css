@@ -179,15 +179,16 @@ a { color: inherit; text-decoration: none; }
 .fall-char {
   display: inline-block;
   opacity: 0;
-  transform: translateY(-1.1em) rotate(-8deg);
-  animation: fallIn 0.85s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
-  will-change: transform, opacity;
+  transform: translateY(-1.4em) scale(1.3) rotate(-10deg);
+  filter: blur(8px);
+  animation: fallIn 0.95s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
+  will-change: transform, opacity, filter;
 }
 @keyframes fallIn {
-  0%   { opacity: 0; transform: translateY(-1.1em) rotate(-8deg); }
-  55%  { opacity: 1; transform: translateY(0.18em) rotate(2deg); }
-  78%  { transform: translateY(-0.06em) rotate(-1deg); }
-  100% { opacity: 1; transform: translateY(0) rotate(0); }
+  0%   { opacity: 0; transform: translateY(-1.4em) scale(1.3) rotate(-10deg); filter: blur(8px); }
+  55%  { opacity: 1; transform: translateY(0.18em) scale(0.97) rotate(2deg); filter: blur(0); }
+  78%  { transform: translateY(-0.07em) scale(1.03) rotate(-1deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); filter: blur(0); }
 }
 
 /* Role rows: a single line of words above the name and another below.
@@ -223,11 +224,33 @@ a { color: inherit; text-decoration: none; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
 
-.hero .role-row.top { animation: fadeUp 0.7s ease-out 0.05s both; }
+@keyframes slideInL { from { opacity: 0; transform: translateX(-52px); filter: blur(4px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }
+@keyframes slideInR { from { opacity: 0; transform: translateX(52px); filter: blur(4px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }
+.hero .role-row.top { animation: slideInL 0.9s cubic-bezier(0.16, 0.84, 0.24, 1) 0.2s both; }
 .hero .hero-name    { animation: floaty 6s ease-in-out infinite; }
-.hero .role-row.bottom { animation: fadeUp 0.7s ease-out 0.3s both; }
+.hero .role-row.bottom { animation: slideInR 0.9s cubic-bezier(0.16, 0.84, 0.24, 1) 0.55s both; }
 .hero .hero-sub     { animation: fadeUp 0.7s ease-out 0.45s both; }
 .hero .hero-glow    { animation: pulse 5s ease-in-out infinite, fadeIn 1.2s ease-out 0.1s both; }
+
+/* Mouse-parallax tilt target (Hero.js writes the transform inline) — the
+   short transition turns raw pointer moves into a smooth, dreamy follow. */
+.hero-stage { transform-style: preserve-3d; transition: transform 0.3s ease-out; }
+
+/* Scroll-away exit: the whole hero tilts back, shrinks and defocuses as you
+   scroll past it (Chromium scroll-driven animation; no-op elsewhere). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .hero {
+      transform-origin: center 30%;
+      animation: heroExit linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 90%;
+    }
+    @keyframes heroExit {
+      to { transform: perspective(1100px) rotateX(14deg) scale(0.85) translateY(-60px); opacity: 0; filter: blur(8px); }
+    }
+  }
+}
 
 /* Scroll reveal — JS adds .in-view when the section enters the viewport.
    Boxes rise + tilt up in 3D (rotateX) with a soft focus-in for real depth. */
@@ -242,13 +265,43 @@ a { color: inherit; text-decoration: none; }
     filter 0.85s ease-out;
   will-change: opacity, transform, filter;
 }
+/* Directional variants — Reveal's `from` prop picks a door to enter through. */
+.reveal.reveal-left {
+  transform: perspective(1300px) rotateY(20deg) translateX(-72px) scale(0.94);
+  transform-origin: left center;
+}
+.reveal.reveal-right {
+  transform: perspective(1300px) rotateY(-20deg) translateX(72px) scale(0.94);
+  transform-origin: right center;
+}
+.reveal.reveal-zoom {
+  transform: perspective(1300px) translateY(46px) scale(0.84);
+  transform-origin: center center;
+}
 .reveal.in-view {
   opacity: 1;
-  transform: perspective(1300px) rotateX(0deg) translateY(0) scale(1);
+  transform: perspective(1300px) rotateX(0) rotateY(0) translate3d(0, 0, 0) scale(1);
   filter: blur(0);
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal.in-view { transform: none; filter: none; transition: opacity 0.4s ease-out; }
+  .reveal, .reveal.reveal-left, .reveal.reveal-right, .reveal.reveal-zoom,
+  .reveal.in-view { transform: none; filter: none; transition: opacity 0.4s ease-out; }
+}
+
+/* Scroll progress — thin gradient bar pinned to the top, driven directly by
+   page scroll (Chromium scroll-timeline; simply absent elsewhere). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    body::after {
+      content: ''; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 90;
+      background: linear-gradient(90deg, var(--green), var(--purple), var(--magenta));
+      transform-origin: 0 50%; transform: scaleX(0);
+      animation: scrollProgress linear both;
+      animation-timeline: scroll(root);
+      pointer-events: none;
+    }
+    @keyframes scrollProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
 }
 .reveal-delay-1 { transition-delay: 0.08s; }
 .reveal-delay-2 { transition-delay: 0.16s; }
@@ -625,11 +678,23 @@ html[data-theme='dark'] .card {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
 .marquee-track { display: flex; gap: 20px; width: max-content; animation: scrollx 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
 @keyframes scrollx { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+/* Slight alternating recline so the strip reads hand-placed, not stamped. */
+.marquee .feat-card:nth-child(odd) { transform: rotate(-1.1deg) translateY(4px); }
+.marquee .feat-card:nth-child(even) { transform: rotate(1.1deg); }
 .feat-card { width: 320px; flex-shrink: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.5); background: var(--card); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); transition: transform 0.3s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.3s; }
 .feat-card:hover { box-shadow: 0 24px 52px rgba(20,20,40,0.18), inset 0 1px 0 rgba(255,255,255,0.7); }
 html[data-theme='dark'] .feat-card { border-color: rgba(255,255,255,0.1); }
-.feat-art { height: 180px; display: flex; align-items: flex-end; padding: 16px; }
+.feat-art { height: 180px; display: flex; align-items: flex-end; padding: 16px; position: relative; overflow: hidden; }
+/* Glossy shine that sweeps across the art on hover. */
+.feat-art::after, .proj-tile-art::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.42) 50%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.feat-card:hover .feat-art::after, .proj-tile:hover .proj-tile-art::after { transform: translateX(130%); }
 .feat-tag { font-size: 11px; color: var(--text); background: var(--card); border-radius: 999px; padding: 3px 10px; backdrop-filter: blur(6px); border: 1px solid var(--line); }
 .feat-meta { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--bg); }
 .feat-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
@@ -703,6 +768,40 @@ html[data-theme='dark'] .modal-kind { color: var(--green); }
 .diary-card-date { color: var(--purple); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
 .diary-card-title { margin: 8px 0 6px; font-size: 18px; }
 .diary-card-body { color: var(--muted); margin: 0; }
+.diary-card-body p { margin: 0 0 14px; line-height: 1.7; }
+.diary-card-body p:last-child { margin-bottom: 0; }
+/* Spotify embeds at the bottom of an entry. */
+.diary-songs { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+.diary-songs iframe { border: 0; border-radius: 14px; display: block; }
+
+/* Diary index — a simple Title | Date table; rows open the full entry. */
+.diary-table { margin-top: 30px; max-width: 860px; }
+.diary-table-head {
+  display: flex; justify-content: space-between;
+  padding: 10px 14px; font-size: 13px; color: var(--muted-dim);
+}
+.diary-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 20px;
+  width: 100%; text-align: left; font: inherit; cursor: pointer;
+  padding: 17px 14px; background: transparent; border: none;
+  border-top: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 0;
+  transition: background 0.15s ease, padding-left 0.2s ease;
+}
+.diary-row:last-child { border-bottom: 1px solid var(--line); }
+.diary-row:hover { background: var(--card); padding-left: 20px; }
+.diary-row-title { font-weight: 600; font-size: 15.5px; }
+.diary-row-date { color: var(--muted-dim); font-size: 13.5px; white-space: nowrap; }
+
+.diary-back {
+  font: inherit; font-size: 13px; color: var(--muted); cursor: pointer;
+  background: transparent; border: 1px solid var(--line); border-radius: 999px;
+  padding: 7px 16px; margin: 4px 0 20px;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.diary-back:hover { color: var(--purple); border-color: var(--purple); transform: translateX(-3px); }
+.diary-card { max-width: 860px; }
 
 /* ───────────────── Responsive ───────────────── */
 @media (max-width: 900px) {

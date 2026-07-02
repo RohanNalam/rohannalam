@@ -3,8 +3,9 @@
 import { useEffect, useRef } from 'react';
 
 // Wraps children in a div that fades + slides up when it scrolls into view.
-// Sections / cards can pass an optional `delay` prop for staggered reveals.
-export default function Reveal({ children, delay = 0, as: Tag = 'div', className = '', ...rest }) {
+// Sections / cards can pass an optional `delay` prop for staggered reveals and
+// a `from` direction ('left' | 'right' | 'zoom') to pick the 3D entrance.
+export default function Reveal({ children, delay = 0, from = '', as: Tag = 'div', className = '', ...rest }) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
@@ -27,7 +28,12 @@ export default function Reveal({ children, delay = 0, as: Tag = 'div', className
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  const cls = ['reveal', delay ? `reveal-delay-${delay}` : '', className].filter(Boolean).join(' ');
+  const cls = [
+    'reveal',
+    from ? `reveal-${from}` : '',
+    delay ? `reveal-delay-${delay}` : '',
+    className,
+  ].filter(Boolean).join(' ');
   return (
     <Tag ref={ref} className={cls} {...rest}>
       {children}

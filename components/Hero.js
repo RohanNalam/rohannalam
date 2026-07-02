@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { profile } from '@/data/profile';
 
 // Stacked clean column: roles above the name, roles below, no recline.
@@ -18,15 +18,51 @@ const ROLE_ACCENT = {
 
 export default function Hero() {
   const [hovered, setHovered] = useState(null);
+  const stageRef = useRef(null);
   const [first, ...rest] = profile.name.split(' ');
   const last = rest.join(' ');
   const onIn = (r) => () => setHovered(r);
   const onOut = (r) => () => setHovered((cur) => (cur === r ? null : cur));
   const accent = hovered ? ROLE_ACCENT[hovered] : null;
   const nameStyle = accent ? { '--name': accent, '--name-deep': accent } : undefined;
+
+  // Mouse-parallax: tilt the whole name stack toward the cursor. The CSS
+  // transition on .hero-stage smooths the follow; skipped for touch/reduced-motion.
+  useEffect(() => {
+    if (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) return;
+    const stage = stageRef.current;
+    if (!stage) return;
+    const hero = stage.closest('.hero') || stage;
+    let raf = 0;
+    const onMove = (e) => {
+      const r = stage.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        stage.style.transform =
+          `perspective(1000px) rotateX(${(-py * 7).toFixed(2)}deg) rotateY(${(px * 9).toFixed(2)}deg)`;
+      });
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(raf);
+      stage.style.transform = '';
+    };
+    hero.addEventListener('pointermove', onMove, { passive: true });
+    hero.addEventListener('pointerleave', onLeave, { passive: true });
+    return () => {
+      hero.removeEventListener('pointermove', onMove);
+      hero.removeEventListener('pointerleave', onLeave);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <header className="hero">
-      <div className="hero-stage">
+      <div className="hero-stage" ref={stageRef}>
         <div className="hero-glow" />
 
         <div className="role-row top">

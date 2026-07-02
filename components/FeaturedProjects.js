@@ -28,7 +28,7 @@ export default function FeaturedProjects() {
       <h2 className="big-head"><SplitText>Featured Projects.</SplitText></h2>
       <Reveal as="p" className="section-sub" delay={2}>Explore some of the things I&apos;ve built — drag, scroll, or browse them all.</Reveal>
 
-      <Reveal className="marquee" delay={3}>
+      <Reveal className="marquee" delay={3} from="zoom">
         <div className="marquee-track">
           {loop.map((p, i) => <Card key={`${p.id}-${i}`} p={p} />)}
         </div>

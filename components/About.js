@@ -25,7 +25,7 @@ export default function About() {
       <div className="about-grid">
         {/* left column */}
         <div className="about-col">
-          <Reveal className="card photo-card" delay={1}>
+          <Reveal className="card photo-card" delay={1} from="left">
             <div className="photo-frame">
               {/* drop the file at public/rohan-canyon.jpg — if missing,
                   the placeholder gradient below shows instead. */}
@@ -55,7 +55,7 @@ export default function About() {
             </p>
           </Reveal>
 
-          <Reveal className="card" delay={2}>
+          <Reveal className="card" delay={2} from="left">
             <div className="card-label">🎓 Education</div>
             {education.map((e) => (
               <div className="edu-row" key={e.org}>
@@ -74,7 +74,7 @@ export default function About() {
             ))}
           </Reveal>
 
-          <Reveal className="card" delay={3}>
+          <Reveal className="card" delay={3} from="left">
             <div className="card-label">🏆 Awards &amp; Activities</div>
             <ul className="aa-list">
               {awardsActivities.map((a) => (
@@ -101,7 +101,7 @@ export default function About() {
         </div>
 
         {/* right column — tech stack */}
-        <Reveal className="card tech-card" delay={2}>
+        <Reveal className="card tech-card" delay={2} from="right">
           <div className="tech-title">Tech Stack</div>
           {techStack.map((g) => (
             <div key={g.group} className="tech-group">

@@ -40,7 +40,7 @@ export default function ProjectsView() {
 
       <div className="proj-grid">
         {projects.map((p, i) => (
-          <Reveal as="button" className="proj-tile" key={p.id} onClick={() => setOpen(p)} delay={Math.min((i % 4) + 1, 5)}>
+          <Reveal as="button" className="proj-tile" key={p.id} onClick={() => setOpen(p)} delay={Math.min((i % 4) + 1, 5)} from="zoom">
             <div className="proj-tile-art" style={{ background: `radial-gradient(120% 120% at 30% 20%, ${p.glow} 0%, transparent 72%)` }}>
               <span className="tile-icon">{ICON[p.object] || '✦'}</span>
               {p.placeholder && <span className="tile-flag">draft</span>}
