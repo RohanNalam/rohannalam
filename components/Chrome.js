@@ -72,29 +72,39 @@ export default function Chrome() {
     try { localStorage.setItem('theme', next); } catch {}
   };
 
-  // gentle ambient pad via WebAudio (no asset needed)
+  // Background music: "Beira Mar" — Erwin Do & Toti Cisneros (Summer in Rio).
+  // Drop the full song at public/music.mp3 and it plays that; until the file
+  // exists, the official 30s iTunes preview streams (and loops) instead.
+  const MUSIC_LOCAL = '/music.mp3';
+  const MUSIC_PREVIEW =
+    'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8b/a7/32/8ba732bc-1b56-5520-76a9-a559e0adee27/mzaf_11073543291188314661.plus.aac.p.m4a';
+
   const toggleSound = () => {
     if (!sound) {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        const ctx = new Ctx();
-        const gain = ctx.createGain();
-        gain.gain.value = 0.04;
-        gain.connect(ctx.destination);
-        [110, 164.81, 220].forEach((f) => {
-          const o = ctx.createOscillator();
-          o.type = 'sine'; o.frequency.value = f;
-          o.connect(gain); o.start();
-        });
-        audioRef.current = ctx;
-        setSound(true);
-      } catch {}
+      let audio = audioRef.current;
+      if (!audio) {
+        audio = new Audio(MUSIC_LOCAL);
+        audio.loop = true;
+        audio.volume = 0.35;
+        audio.onerror = () => {
+          // local file missing — fall back to the streamed preview
+          if (audio.src.includes('music.mp3')) {
+            audio.src = MUSIC_PREVIEW;
+            audio.play().catch(() => {});
+          }
+        };
+        audioRef.current = audio;
+      }
+      audio.play().catch(() => {});
+      setSound(true);
     } else {
-      audioRef.current?.close?.();
-      audioRef.current = null;
+      audioRef.current?.pause?.();
       setSound(false);
     }
   };
+
+  // stop the music if the chrome unmounts (page navigation)
+  useEffect(() => () => { audioRef.current?.pause?.(); }, []);
 
   return (
     <>
@@ -127,7 +137,7 @@ export default function Chrome() {
         )}
       </div>
 
-      <button className="toggle-btn sound-toggle" onClick={toggleSound} aria-label="Toggle ambient sound">
+      <button className="toggle-btn sound-toggle" onClick={toggleSound} aria-label="Toggle music">
         {sound ? <SoundOnIcon /> : <SoundOffIcon />}
       </button>
 
