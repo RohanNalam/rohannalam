@@ -25,7 +25,7 @@ export default function FeaturedProjects() {
   return (
     <section className="section" id="projects">
       <Reveal as="p" className="eyebrow">MY WORK</Reveal>
-      <h2 className="big-head"><SplitText>Featured Projects.</SplitText></h2>
+      <h2 className="big-head big-head-split"><SplitText>Featured Projects.</SplitText></h2>
       <Reveal as="p" className="section-sub" delay={2}>Explore some of the things I&apos;ve built — drag, scroll, or browse them all.</Reveal>
 
       <Reveal className="marquee" delay={3} from="zoom">

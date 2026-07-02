@@ -582,6 +582,17 @@ html[data-theme='dark'] .big-head .split-char {
   background: linear-gradient(118deg, var(--green) 0%, var(--purple) 48%, var(--magenta) 92%);
   -webkit-background-clip: text; background-clip: text;
 }
+/* Letter-split headings (SplitText inside .big-head): the parent must NOT
+   paint — its background-clip:text ghost-renders every glyph at the resting
+   position while the letters animate, doubling the first letters. Instead each
+   char paints its own slice of a word-spanning gradient (--gn/--gp come from
+   SplitText) so the gradient still reads continuous across the word. */
+.big-head.big-head-split,
+html[data-theme='dark'] .big-head.big-head-split { background: none; }
+.big-head-split .split-char {
+  background-size: calc(var(--gn, 1) * 100%) 100%;
+  background-position: var(--gp, 0%) 0;
+}
 .big-head.center { text-align: center; }
 .section-sub { color: var(--muted); font-size: 16px; margin: 0 0 36px; max-width: 56ch; }
 

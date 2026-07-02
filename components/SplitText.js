@@ -48,6 +48,10 @@ export default function SplitText({
           style={{
             transitionDelay: `${startDelay + i * stagger}s`,
             transitionDuration: `${duration}s`,
+            // Gradient slice vars: chars inside gradient headings paint their
+            // own share of a word-spanning gradient (see .big-head-split).
+            '--gn': text.length,
+            '--gp': `${(i / Math.max(text.length - 1, 1)) * 100}%`,
           }}
           aria-hidden="true"
         >

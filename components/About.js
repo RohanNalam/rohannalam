@@ -20,7 +20,7 @@ export default function About() {
   return (
     <section className="section about" id="about">
       <Reveal as="p" className="eyebrow">{greeting}</Reveal>
-      <h2 className="big-head"><SplitText>About</SplitText></h2>
+      <h2 className="big-head big-head-split"><SplitText>About</SplitText></h2>
 
       <div className="about-grid">
         {/* left column */}
